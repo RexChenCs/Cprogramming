@@ -9,7 +9,6 @@
 int opt;
 int c_flag = 0;
 int v_flag = 0;
-/********hw6 qixiang global data ********/
 int a_flag=0;
 int file_fd = -1;
 static char* server_ip;
@@ -17,7 +16,6 @@ static char motd[MAXLINE]={'\0'};
 int server_port;
 static FILE *logfile=NULL;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-/********hw6 qixiang global data ********/
 
 typedef struct PEER {
 	const char *username;
@@ -30,7 +28,6 @@ static char *username = NULL;
 static PEER *peer_list_head = NULL;
 
 
-/********hw6 qixiang get time with format ********/
 void getTime(char *buf){
    time_t rawtime;
    struct tm *timeinfo;
@@ -41,7 +38,7 @@ void getTime(char *buf){
    strcpy(buf,tbuf);
    bzero(tbuf,strlen(tbuf));
 }
-/********hw6 qixiang ********/
+
 
 
 void delete_peer1(const char *username1){
@@ -953,9 +950,7 @@ int main(int argc, char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	/*************qixiang hw6****************/
 	file_fd = fileno(logfile);
-	/*************qixiang hw6****************/
 	username = argv[argc - 3];
 	server_ip = argv[argc - 2];
 	server_port = atoi(argv[argc - 1]);
@@ -984,7 +979,6 @@ int main(int argc, char* argv[]) {
 	flock(file_fd,LOCK_EX);
 	sfwrite(lock,logfile,"%s, %s, LOGIN, %s:%d, success, %s\n",Time,username,server_ip,server_port, motd);
 	flock(file_fd,LOCK_UN);
-	//fclose(logfile);
 	bzero(Time,16);
 	/*************hw6 audit*******************/	
 

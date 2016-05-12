@@ -24,10 +24,7 @@ void print_server_command_usage();
 void print_current_login_user_list(struct user *current_login_user_list_header1);
 void print_account_list(struct account *account_list_header1);
 int server_command_check(char **command,int number_of_tokens,struct user *current_login_user_list_header1,struct account *account_list_header1);
-/*haozhi 4/16*/
 char** divide_command(char *command,int *number_of_tokens);
-/*haozhi 4/16*/
-
 void print_usage();
 int message_handler(int sockfd);
 void input_handler();

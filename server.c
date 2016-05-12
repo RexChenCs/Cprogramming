@@ -8,7 +8,6 @@
 #include <sqlite3.h>
 #include "sfwrite.h"
 
-/*************haozhi 5/3****************/
 #include <semaphore.h>
 
 typedef struct LOGIN_REQUEST{
@@ -19,7 +18,6 @@ typedef struct LOGIN_REQUEST{
 struct LOGIN_REQUEST *login_request_list_end=NULL;
 pthread_mutex_t Q_lock = PTHREAD_MUTEX_INITIALIZER;
 sem_t items_sem;
-/*************haozhi 5/3****************/
 char ACCOUNT_FILE_temp[1024]; 
 int v_flag = 0;
 
@@ -44,9 +42,7 @@ typedef struct ACCOUNT {
 static USER *user_list_head = NULL;
 struct ACCOUNT *account_list_head = NULL;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-/*************haozhi 5/6****************/
 static pthread_mutex_t lock1 = PTHREAD_MUTEX_INITIALIZER;
-/*************haozhi 5/6****************/
 static pthread_t comm_tid;
 
 sqlite3 *database=NULL;
@@ -76,7 +72,7 @@ void save_helper(FILE *accounts_file,ACCOUNT *account_list_header1);
 void decode(char *in,int len,char *out);
 void encode(char *in,int len,char *out);
 
-/*************haozhi 5/3****************/
+
 LOGIN_REQUEST *add_login_request(int connfd1){
 	/*malloc space for the new request*/
 	LOGIN_REQUEST *n_request=malloc(sizeof(struct LOGIN_REQUEST));
@@ -137,13 +133,13 @@ void print_all_login_request(LOGIN_REQUEST *login_request_list_end1){
 
 void free_all_login_request(){
 	while(login_request_list_end!=NULL){
-		/*************haozhi 5/3 modified****************/
+
 		int fd=remove_login_request();
 		close(fd);
-		/*************haozhi 5/3 modified****************/
+
 	}
 }
-/*************haozhi 5/3****************/
+
 
 
 void hash_password(char *password1,char *hash_buf,char *salt_buf){
@@ -335,7 +331,6 @@ void delete_account1(char *username1){
 }
 
 
-/*************haozhi 5/6****************/
 int find_account1(char *username1){
 	ACCOUNT *tmp_account=account_list_head;
 	ACCOUNT *find_account=NULL;
@@ -354,7 +349,7 @@ int find_account1(char *username1){
 		return 1;
 	}
 }
-/*************haozhi 5/6****************/
+
 
 
 void free_all_account(ACCOUNT *account_list_header1){
@@ -597,17 +592,13 @@ void *communication_thread(void *arg) {
 }
 
 void *login_thread(void *arg) {
-/*************haozhi 5/3****************/
+
 	while(1){
 		int fd;
 		sem_wait(&items_sem);
 		pthread_mutex_lock(&Q_lock);
 		fd=remove_login_request();
-		//if(fd==-1){
-			/***error??????**/
-		//}
 		pthread_mutex_unlock(&Q_lock);
-/*************haozhi 5/3****************/
 
 	char buf[MAXLINE] = {'\0'};
 	if (recv_unwrap_message(fd, "WOLFIE", buf, v_flag) == -1) {
@@ -690,13 +681,11 @@ void *login_thread(void *arg) {
 		strcpy(account->salt,salt1);
 
 		pthread_mutex_lock(&lock);
-/*************haozhi 5/6****************/
 		if(find_account1(username)==1){
 			close(fd);
 			free(account);
 			goto LOOP_END;
 		}
-/*************haozhi 5/6****************/
 		if (account_list_head == NULL) {
 			account_list_head = account;
 		} else {
@@ -838,9 +827,7 @@ void *login_thread(void *arg) {
 		user->login_time = time(NULL);
 		user->fd = fd;
 		user->active = 1;
-		/*************haozhi 5/6****************/
 		pthread_mutex_lock(&lock1);
-		/*************haozhi 5/6****************/
 		if (user_list_head == NULL) {
 			user_list_head = user;
 			pthread_create(&comm_tid, NULL, &communication_thread, NULL);
@@ -849,9 +836,8 @@ void *login_thread(void *arg) {
 			user->next = user_list_head;
 			user_list_head = user;
 		}
-		/*************haozhi 5/6****************/
+
 		pthread_mutex_unlock(&lock1);
-		/*************haozhi 5/6****************/
 	}
 
 	bzero(buf, sizeof(buf));
@@ -861,12 +847,8 @@ void *login_thread(void *arg) {
 		goto LOOP_END;
 	}
 LOOP_END:
-	fd = -1;//might change!!!!!!!!!
-	//fprintf(stderr, "%s\n", "1111111111111");
-
-/*************haozhi 5/3****************/
+	fd = -1;
 	}
-/*************haozhi 5/3****************/
 	return NULL;
 }
 
@@ -1061,20 +1043,12 @@ void input_handler() {
 			}
 			temp = temp->next;
 		}
-/*************haozhi database****************/
-		/*save_account_database(account_list_head);
-		close_database();*/
-/*************haozhi database****************/
 
-/*************haozhi replace database****************/
+
 		save_accounts_file(account_list_head);
-/*************haozhi replace database****************/
-
 		free_all_user(user_list_head);
 		free_all_account(account_list_head);
-/*************haozhi 5/3****************/
 		free_all_login_request();
-/*************haozhi 5/3****************/
 		exit(EXIT_SUCCESS);
 	}
 	ERRORS("Invalid Command!\n");
@@ -1088,9 +1062,7 @@ int main(int argc, char* argv[]) {
 	int opt;
 	int port;
 	int t_flag=0;
-/*************haozhi 5/3****************/
 	int thread_count=2;
-/*************haozhi 5/3****************/
 	while((opt = getopt(argc, argv, "hvt:")) != -1) {
         switch(opt) {
             case 'h':
@@ -1109,13 +1081,10 @@ int main(int argc, char* argv[]) {
             		fprintf(stderr,"ERROR: Invalid THREAD_COUNT.\n");
     				exit(EXIT_FAILURE);
             	}
-            	/*************haozhi 5/3****************/
             	if(thread_count<1){
             		fprintf(stderr,"ERROR: The given THREAD_COUNT is less than 1.\n");
     				exit(EXIT_FAILURE);
             	}
-            	/*************haozhi 5/3****************/
-            	//printf("thread_count: %d t_flag: %d\n", thread_count ,t_flag);
             	break;
             case '?':
             default:
@@ -1147,21 +1116,10 @@ int main(int argc, char* argv[]) {
 		motd = argv[argc -2];
 
 		char *file = argv[argc -1];
-		/*************hw5_to_hw6****************/
-		//fprintf(stderr, "%s\n", file);
-		/*************hw5_to_hw6****************/
-		//open data base
-/*************haozhi database****************/
-		/*open_database(file);
-		create_table();
-		table_to_list();*/
-/*************haozhi database****************/
-/*************haozhi replace database****************/
 		int t3=load_accounts_file(file);
 		if(t3<0){
 			exit(EXIT_FAILURE);
 		}
-/*************haozhi replace database****************/
 	}
 	else if(argc-optind<2){
 		ERRORS("The number of argument given should not be less than 2.");
@@ -1198,27 +1156,16 @@ int main(int argc, char* argv[]) {
 		ERRORS("error in listen %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
-/*************haozhi database****************/
-	/*if(database==NULL){	
-		open_database("hw6.db");
-		drop_table();
-		create_table();
-		table_to_list();
-	}*/
-/*************haozhi database****************/
+
 	int maxfd = listenfd;
 	fd_set rset;
 	pthread_t tid;
-
-/*************haozhi 5/3****************/
 	sem_init(&items_sem, 0, 0);
 	int t1;
 	for(t1=0;t1<thread_count;t1++){
 		pthread_create(&tid, NULL, &login_thread, NULL);
 		pthread_setname_np(tid,"LOGIN");
 	}
-	//printf("thread_count is %d\n", thread_count);
-/*************haozhi 5/3****************/
 
 	while (1) {
 		FD_ZERO(&rset);
@@ -1232,14 +1179,11 @@ int main(int argc, char* argv[]) {
 				printf("error in accept %s\n", strerror(errno));
 				exit(EXIT_FAILURE);
 			}
-/*************haozhi 5/3****************/
+
 			pthread_mutex_lock(&Q_lock);
 			add_login_request(connfd);
 			pthread_mutex_unlock(&Q_lock);
 			sem_post(&items_sem);
-			//pthread_create(&tid, NULL, &login_thread, (void*)&connfd);
-			//pthread_setname_np(tid,"LOGIN");
-/*************haozhi 5/3****************/
 		}
 		// stdin is readable
 		if (FD_ISSET(fileno(stdin), &rset)) {

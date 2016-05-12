@@ -6,14 +6,12 @@
 static int chatfd = -1;
 static int peer_logout = 0;
 
-
-/********hw6 qixiang /read audit content ********/
 static int file_fd = -1;
 static FILE *logfile = NULL;
 static char *username = NULL;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static char Time[18] = {'\0'};
-/********hw6 qixiang /read audit content ********/
+
 void getTime(char *timebuf){
    time_t rawtime;
    struct tm *timeinfo;
@@ -24,7 +22,6 @@ void getTime(char *timebuf){
    strcpy(timebuf,tbuf);
    bzero(tbuf,strlen(tbuf));
 }
-/********hw6 qixiang ********/
 
 void input_handler() {
 	char buf[MAXLINE] = {'\0'};

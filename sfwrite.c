@@ -18,7 +18,6 @@ void sfwrite(pthread_mutex_t lock, FILE* stream, char *fmt, ...){
 }
 
 
-/********hw6 qixiang /read audit content ********/
 void Read_Audit(FILE *stream){
    fflush(stream);
    fseek(stream,0,SEEK_SET);
@@ -28,6 +27,6 @@ void Read_Audit(FILE *stream){
     }
 
 }
-/********hw6 qixiang /read audit content ********/
+
 
 
