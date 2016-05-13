@@ -1,9 +1,9 @@
 #include "common.h"
 #include "client.h"
 #include "sfwrite.h"
-// get time and flock
 #include <time.h>
 #include <sys/file.h>
+#include <sys/wait.h>
 
 
 int opt;
@@ -488,6 +488,9 @@ void chat_handler(int socket, int fd, const char *peername) {
 				if(kill(peer->pid,9) == 0){
 					printf("%d: process was kill.\n",peer->pid);
 				}
+				waitpid(peer->pid,NULL,0);
+				peer-> pid = -1;
+				
 			}
 			peer = peer->next;
 		}

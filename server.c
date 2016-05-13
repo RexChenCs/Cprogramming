@@ -10,6 +10,8 @@
 
 #include <semaphore.h>
 
+int listenfd =-1;
+
 typedef struct LOGIN_REQUEST{
 	int connfd;
 	struct LOGIN_REQUEST *prev;
@@ -1049,8 +1051,10 @@ void input_handler() {
 		free_all_user(user_list_head);
 		free_all_account(account_list_head);
 		free_all_login_request();
+		close(listenfd);
 		exit(EXIT_SUCCESS);
 	}
+	
 	ERRORS("Invalid Command!\n");
 	VERBOSE("Command Menu:\n");
 	print_server_command_usage();
@@ -1137,7 +1141,7 @@ int main(int argc, char* argv[]) {
 
 	DEFAULT("Currently listening on port %d\n", port);
 
-	int listenfd, connfd;
+	int connfd;
 	socklen_t clilen;
 	struct sockaddr_in cliaddr, servaddr;
 
@@ -1190,5 +1194,7 @@ int main(int argc, char* argv[]) {
 			input_handler();
 		}
 	}
+
+	close(listenfd);
 	return 0;
 }
